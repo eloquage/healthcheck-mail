@@ -29,7 +29,7 @@ final class MailConnectivityCheck extends Check
         $host = $config['host'] ?? '';
         $host = is_string($host) ? $host : '';
         $port = $config['port'] ?? 587;
-        $port = is_int($port) ? $port : (int) $port;
+        $port = is_numeric($port) ? (int) $port : 587;
 
         if ($host === '') {
             return Result::make()->failed('SMTP host is not configured.');
