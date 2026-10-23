@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 return [
-    'installed' => 'mail extension is installed (version :version).',
-    'missing' => 'mail extension is required but not installed.',
-    'not_installed' => 'mail extension is not installed.',
-    'query_failed' => 'Could not verify mail extension: :message',
+    'connected' => 'SMTP accepts TCP connections.',
+    'mailer_missing' => 'Mailer configuration [:mailer] is missing.',
+    'host_missing' => 'SMTP host is not configured.',
+    'invalid_port' => 'SMTP port must be between 1 and 65535.',
+    'unreachable' => 'SMTP is unreachable at :host::port (:code :message).',
+    'skipped' => 'Mailer [:mailer] does not use SMTP; connectivity probe skipped.',
 ];
