@@ -2,24 +2,15 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\File;
-use Illuminate\Testing\PendingCommand;
+use IllumaLaw\HealthCheckMail\HealthcheckMailServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-it('publishes the config file under the correct tag', function () {
-    $command = $this->artisan('vendor:publish', [
-        '--tag' => 'healthcheck-mail-config',
-        '--force' => true,
-    ]);
+it('registers the config publish path under the correct tag', function () {
+    $provider = app()->getProvider(HealthcheckMailServiceProvider::class);
+    $source = dirname((new \ReflectionClass($provider))->getFileName()).'/../config/healthcheck-mail.php';
 
-    if ($command instanceof PendingCommand) {
-        $command->assertExitCode(0);
-    } else {
-        expect($command)->toBe(0);
-    }
-
-    expect(config_path('healthcheck-mail.php'))->toBeFile();
-
-    File::delete(config_path('healthcheck-mail.php'));
+    expect(ServiceProvider::pathsToPublish($provider::class, 'healthcheck-mail-config'))
+        ->toBe([$source => config_path('healthcheck-mail.php')]);
 });
 
 it('loads config with the correct default', function () {
