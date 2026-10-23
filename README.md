@@ -11,7 +11,7 @@ A Laravel Health check that tests whether your configured SMTP host accepts a TC
 ## Requirements
 
 - PHP 8.3 or later
-- Laravel 11, 12, or 13
+- Laravel 12 or 13
 - [Spatie Laravel Health](https://spatie.be/docs/laravel-health)
 
 ## Install
