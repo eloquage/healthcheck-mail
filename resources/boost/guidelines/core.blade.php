@@ -1,16 +1,15 @@
 # illuma-law/healthcheck-mail
 
-Checks if the `vector` extension (mail) is enabled and active in PostgreSQL.
+Checks whether the configured SMTP host accepts a TCP connection. It does not send an email.
 
 ## Usage
 
 ```php
-use IllumaLaw\HealthCheckMail\MailExtensionCheck;
+use IllumaLaw\HealthCheckMail\MailConnectivityCheck;
 use Spatie\Health\Facades\Health;
 
 Health::checks([
-    MailExtensionCheck::new()
-        ->required(true), // If true, FAIL if missing. If false, WARNING.
+    MailConnectivityCheck::new(),
 ]);
 ```
 
@@ -19,4 +18,5 @@ Health::checks([
 Publish config: `php artisan vendor:publish --tag="healthcheck-mail-config"`
 
 Options in `config/healthcheck-mail.php`:
-- `required`: (bool) Global default for strictness.
+- `required`: make missing or unreachable SMTP configuration fail; otherwise report a warning.
+- `timeout_seconds`: maximum TCP connection time in seconds.

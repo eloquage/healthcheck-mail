@@ -14,49 +14,74 @@ final class MailConnectivityCheck extends Check
     {
         $mailer = config('mail.default', 'log');
         $mailer = is_string($mailer) ? $mailer : 'log';
-
-        if (in_array($mailer, ['log', 'array', 'fail', 'null'], true)) {
-            return (new Result(Status::skipped(), "Mailer [{$mailer}] does not use SMTP; connectivity probe skipped."))
-                ->shortSummary('Skipped');
-        }
-
         $config = config("mail.mailers.{$mailer}");
 
         if (! is_array($config)) {
-            return Result::make()->failed("Mailer configuration [{$mailer}] is missing.");
+            return $this->unavailable(__('healthcheck-mail::messages.mailer_missing', ['mailer' => $mailer]), 'Not configured');
         }
 
-        $host = $config['host'] ?? '';
-        $host = is_string($host) ? $host : '';
-        $port = $config['port'] ?? 587;
-        $port = is_numeric($port) ? (int) $port : 587;
+        $configuredTransport = $config['transport'] ?? $config['driver'] ?? $mailer;
+        $transport = is_string($configuredTransport) ? strtolower($configuredTransport) : '';
+
+        if ($transport !== 'smtp') {
+            return (new Result(Status::skipped(), __('healthcheck-mail::messages.skipped', ['mailer' => $mailer])))
+                ->shortSummary('Skipped');
+        }
+
+        $configuredHost = $config['host'] ?? '';
+        $host = is_string($configuredHost) ? trim($configuredHost) : '';
 
         if ($host === '') {
-            return Result::make()->failed('SMTP host is not configured.');
+            return $this->unavailable(__('healthcheck-mail::messages.host_missing'), 'Not configured');
         }
 
+        $configuredPort = $config['port'] ?? 587;
+        $port = is_numeric($configuredPort) ? (int) $configuredPort : 587;
+
+        if ($port < 1 || $port > 65535) {
+            return $this->unavailable(__('healthcheck-mail::messages.invalid_port'), 'Invalid port');
+        }
+
+        $configuredTimeout = config('healthcheck-mail.timeout_seconds', 3);
+        $timeoutSeconds = max(1, is_numeric($configuredTimeout) ? (int) $configuredTimeout : 3);
         $startedAt = microtime(true);
-        $socket = @fsockopen($host, $port, $errno, $errstr, 3.0);
-        $ms = (int) round((microtime(true) - $startedAt) * 1000);
+        $socket = @fsockopen($host, $port, $errno, $errorMessage, (float) $timeoutSeconds);
+        $responseTimeMs = (int) round((microtime(true) - $startedAt) * 1000);
 
         $meta = [
             'mailer' => $mailer,
             'host' => $host,
             'port' => $port,
-            'response_time_ms' => $ms,
+            'response_time_ms' => $responseTimeMs,
         ];
 
         if ($socket === false) {
-            return Result::make()
-                ->meta($meta)
-                ->failed("SMTP is unreachable at {$host}:{$port} ({$errno} {$errstr}).");
+            $message = __('healthcheck-mail::messages.unreachable', [
+                'host' => $host,
+                'port' => $port,
+                'code' => $errno,
+                'message' => $errorMessage,
+            ]);
+
+            return $this->unavailable($message, 'Unreachable')->meta($meta);
         }
 
         fclose($socket);
 
         return Result::make()
             ->meta($meta)
-            ->shortSummary("{$ms}ms")
-            ->ok('SMTP accepts TCP connections.');
+            ->shortSummary("{$responseTimeMs}ms")
+            ->ok(__('healthcheck-mail::messages.connected'));
+    }
+
+    private function unavailable(string $message, string $summary): Result
+    {
+        $result = Result::make()->shortSummary($summary);
+
+        if ((bool) config('healthcheck-mail.required', false)) {
+            return $result->failed($message);
+        }
+
+        return $result->warning($message);
     }
 }

@@ -1,32 +1,51 @@
-# Healthcheck mail for Laravel
+# Healthcheck Mail
 
 [![Tests](https://github.com/eloquage/healthcheck-mail/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-mail/actions)
-[![Packagist License](https://img.shields.io/badge/Licence-MIT-blue)](http://choosealicense.com/licenses/mit/)
-[![Latest Stable Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-mail?label=Version)](https://packagist.org/packages/illuma-law/healthcheck-mail)
+[![Latest Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-mail)](https://packagist.org/packages/illuma-law/healthcheck-mail)
+[![License](https://img.shields.io/packagist/l/illuma-law/healthcheck-mail)](LICENSE.md)
 
-A focused mail health check for Spatie's [Laravel Health](https://spatie.be/docs/laravel-health/v1/introduction) package.
+![SMTP connection health check illustration](art/banner.png)
 
-This package provides a simple, direct health check to verify that your application's SMTP server is reachable and accepting TCP connections.
+A Laravel Health check that tests whether your configured SMTP host accepts a TCP connection.
 
-## Features
+## Requirements
 
-- **Connectivity Check:** Verifies that your Laravel application can successfully connect to the configured SMTP host and port.
-- **Latency Monitoring:** Measures the response time of the SMTP connection.
-- **Smart Skipping:** Automatically skips the check if the default mailer is set to `log`, `array`, `fail`, or `null`.
+- PHP 8.3 or later
+- Laravel 11, 12, or 13
+- [Spatie Laravel Health](https://spatie.be/docs/laravel-health)
 
-## Installation
+## Install
 
-Require this package with composer:
-
-```shell
+```bash
 composer require illuma-law/healthcheck-mail
 ```
 
-## Usage & Integration
+## Configure
 
-Register the check inside your application's health service provider (e.g. `AppServiceProvider` or a dedicated `HealthServiceProvider`), alongside your other Spatie Laravel Health checks:
+Use an SMTP mailer in your Laravel mail configuration, for example:
 
-### Basic Registration
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+```
+
+The check skips non-SMTP transports such as `log` and `ses`. Publish its settings if you need to change the defaults:
+
+```bash
+php artisan vendor:publish --tag=healthcheck-mail-config
+```
+
+In `config/healthcheck-mail.php`:
+
+- `required`: when `true`, missing or unreachable SMTP configuration fails the check; otherwise it warns. Default: `false`.
+- `timeout_seconds`: connection timeout in seconds. Default: `3`.
+
+Environment variables are `HEALTH_MAIL_REQUIRED` and `HEALTH_MAIL_TIMEOUT_SECONDS`.
+
+## Use
+
+Register the check with your Laravel Health checks:
 
 ```php
 use IllumaLaw\HealthCheckMail\MailConnectivityCheck;
@@ -37,22 +56,16 @@ Health::checks([
 ]);
 ```
 
-### Expected Result States
+The probe opens and closes a TCP connection. It does not test SMTP authentication, TLS negotiation, server greeting, or email delivery. A successful result confirms that the configured host and port accepted the connection.
 
-The check interacts with the Spatie Health dashboard and JSON endpoints using these states:
+## Tests
 
-- **Ok:** SMTP server is reachable and accepting connections.
-- **Skipped:** The default mailer is not an SMTP-based driver.
-- **Failed:** SMTP server was unreachable, or the mailer configuration is missing.
-
-## Testing
-
-Run the test suite:
-
-```shell
+```bash
+composer install
 composer test
+composer analyse
 ```
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT. See [LICENSE.md](LICENSE.md).
