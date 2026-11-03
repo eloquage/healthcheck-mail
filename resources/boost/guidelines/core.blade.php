@@ -1,4 +1,4 @@
-# illuma-law/healthcheck-mail
+# eloquage/healthcheck-mail
 
 Checks whether the configured SMTP host accepts a TCP connection. It does not send an email.
 

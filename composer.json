@@ -1,5 +1,5 @@
 {
-    "name": "illuma-law/healthcheck-mail",
+    "name": "eloquage/healthcheck-mail",
     "description": "Focused mail health check for Spatie's Laravel Health package.",
     "keywords": [
         "illuma-law",
