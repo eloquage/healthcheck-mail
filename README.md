@@ -1,8 +1,8 @@
 # Healthcheck Mail
 
 [![Tests](https://github.com/eloquage/healthcheck-mail/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-mail/actions)
-[![Latest Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-mail)](https://packagist.org/packages/illuma-law/healthcheck-mail)
-[![License](https://img.shields.io/packagist/l/illuma-law/healthcheck-mail)](LICENSE.md)
+[![Latest Version](https://img.shields.io/packagist/v/eloquage/healthcheck-mail)](https://packagist.org/packages/eloquage/healthcheck-mail)
+[![License](https://img.shields.io/packagist/l/eloquage/healthcheck-mail)](LICENSE.md)
 
 ![SMTP connection health check illustration](art/banner.png)
 
@@ -17,7 +17,7 @@ A Laravel Health check that tests whether your configured SMTP host accepts a TC
 ## Install
 
 ```bash
-composer require illuma-law/healthcheck-mail
+composer require eloquage/healthcheck-mail
 ```
 
 ## Configure

@@ -7,7 +7,7 @@ metadata:
 
 # Laravel package development
 
-Use this skill when changing this Composer package: `illuma-law/healthcheck-mail` — Focused mail health check for Spatie's Laravel Health package.
+Use this skill when changing this Composer package: `eloquage/healthcheck-mail` — Focused mail health check for Spatie's Laravel Health package.
 
 ## Package context
 
